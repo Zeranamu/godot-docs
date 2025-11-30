@@ -2,15 +2,17 @@
 name: Convert RST to Markdown
 
 on:
-  workflow_dispatch:  # allows manual trigger
+  workflow_dispatch:  # allows manual run
 
 jobs:
   convert:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Set up Pandoc
-        run: sudo apt-get update && sudo apt-get install -y pandoc zip
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pandoc zip
       - name: Run conversion script
         run: |
           TMP_DIR=$(mktemp -d)
@@ -20,8 +22,7 @@ jobs:
           done
           zip -r notebooklm_docs.zip "$TMP_DIR"
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4   # upgraded to v4
         with:
           name: notebooklm_docs
           path: notebooklm_docs.zip
-          
