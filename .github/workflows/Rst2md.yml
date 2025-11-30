@@ -1,0 +1,27 @@
+# .github/workflows/convert-rst-to-md.yml
+name: Convert RST to Markdown
+
+on:
+  workflow_dispatch:  # allows manual trigger
+
+jobs:
+  convert:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Pandoc
+        run: sudo apt-get update && sudo apt-get install -y pandoc zip
+      - name: Run conversion script
+        run: |
+          TMP_DIR=$(mktemp -d)
+          find . -name "*.rst" -print0 | while IFS= read -r -d $'\0' file; do
+            mkdir -p "$TMP_DIR/$(dirname "$file")"
+            pandoc "$file" -o "$TMP_DIR/${file%.rst}.md"
+          done
+          zip -r notebooklm_docs.zip "$TMP_DIR"
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: notebooklm_docs
+          path: notebooklm_docs.zip
+          
